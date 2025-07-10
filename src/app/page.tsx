@@ -86,7 +86,7 @@ function ChatInterface() {
               <img
                 src="https://media.licdn.com/dms/image/v2/C4D03AQF1Mfi_0GdEhw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1548318334512?e=1757548800&v=beta&t=BOlTV22C_QqufqsN6z1Pef3R-OmpK5IxmV8u97TgnQE"
                 alt="Jaco"
-                className="relative z-10 w-32 h-32 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-lg"
+                className="relative z-10 w-64 h-64 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-lg"
               />
               {/* Glow Effect */}
               <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-400/20 via-red-400/20 to-orange-400/20 blur-xl ai-glow"></div>
