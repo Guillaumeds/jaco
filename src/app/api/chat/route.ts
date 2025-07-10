@@ -93,28 +93,20 @@ Example: If someone asks about motivation, you might say:
     }
 
     const data = await response.json();
-    const aiResponse = data.choices?.[0]?.message?.content || generateFallbackResponse(userMessage);
+    const aiResponse = data.choices?.[0]?.message?.content || generateFallbackResponse();
 
     return NextResponse.json({ response: aiResponse });
   } catch (error) {
     console.error('Error calling Groq API:', error);
 
     // Fallback response if API fails
-    const fallbackResponse = generateFallbackResponse(userMessage);
+    const fallbackResponse = generateFallbackResponse();
 
     return NextResponse.json({ response: fallbackResponse });
   }
 }
 
-function generateFallbackResponse(userMessage: string): string {
-  // Simple fallback using the databases
-  const randomPhilosopher = philosopherQuotes[Math.floor(Math.random() * philosopherQuotes.length)];
-  const randomPunk = punkRockWisdom[Math.floor(Math.random() * punkRockWisdom.length)];
-
-  return `Well, you see, as ${randomPhilosopher.philosopher} said in ${randomPhilosopher.year} "${randomPhilosopher.quote}", or even more wisely from the song ${randomPunk.song} from the infinitely wise ${randomPunk.band}: "${randomPunk.theme}".`;
-}
-
-function generateFallbackResponse(userMessage: string): string {
+function generateFallbackResponse(): string {
   // Simple fallback using the databases
   const randomPhilosopher = philosopherQuotes[Math.floor(Math.random() * philosopherQuotes.length)];
   const randomPunk = punkRockWisdom[Math.floor(Math.random() * punkRockWisdom.length)];
