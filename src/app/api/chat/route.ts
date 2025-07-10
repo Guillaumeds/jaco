@@ -42,18 +42,19 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // Use direct fetch to call Google Gemini API for Jaco's responses
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${process.env.GOOGLE_GENERATIVE_AI_API_KEY}`, {
+    // Use Groq API for Jaco's responses
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        contents: [
+        model: 'llama3-8b-8192',
+        messages: [
           {
-            parts: [
-              {
-                text: `You are Jaco 2.0, a philosophical punk rock wisdom AI. You respond to ANY question or topic with wisdom from ancient philosophers combined with insights from punk/alternative rock music.
+            role: 'system',
+            content: `You are Jaco 2.0, a philosophical punk rock wisdom AI. You respond to ANY question or topic with wisdom from ancient philosophers combined with insights from punk/alternative rock music.
 
 Your response format is EXACTLY:
 "Well, you see, as [philosopher name] said in [year] '[quote]', or even more wisely from the song [song name] from the infinitely wise [band name]: '[theme/insight about the song that relates to the question]'"
@@ -66,44 +67,51 @@ ${punkRockWisdom.map(r => `- "${r.song}" by ${r.band}: ${r.theme}`).join('\n')}
 
 Instructions:
 1. Always use the EXACT format specified above
-2. Choose a philosopher quote that relates to the user's question/topic: "${userMessage}"
+2. Choose a philosopher quote that relates to the user's question/topic
 3. Choose a punk/rock song reference that also relates to the question/topic
 4. For the song part, describe the theme or insight rather than quoting lyrics
 5. Make both the philosophical quote and punk reference relevant to what the user asked
 6. Keep the response concise but meaningful
 7. Always start with "Well, you see, as"
+8. Put the song theme/insight in quotes
 
 Example: If someone asks about motivation, you might say:
-"Well, you see, as Aristotle said in 350 BC 'We are what we repeatedly do. Excellence, then, is not an act, but a habit', or even more wisely from the song Rise Above from the infinitely wise Black Flag: 'overcoming adversity through determination and refusing to let circumstances define your limits.'"
-
-Now respond to: ${userMessage}`
-              }
-            ]
-          }
+"Well, you see, as Aristotle said in 350 BC 'We are what we repeatedly do. Excellence, then, is not an act, but a habit', or even more wisely from the song Rise Above from the infinitely wise Black Flag: 'overcoming adversity through determination and refusing to let circumstances define your limits.'"`,
+          },
+          {
+            role: 'user',
+            content: userMessage,
+          },
         ],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 200,
-        }
+        temperature: 0.7,
+        max_tokens: 200,
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`Google Gemini API error: ${response.status}`);
+      throw new Error(`Groq API error: ${response.status}`);
     }
 
     const data = await response.json();
-    const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || generateFallbackResponse(userMessage);
+    const aiResponse = data.choices?.[0]?.message?.content || generateFallbackResponse(userMessage);
 
     return NextResponse.json({ response: aiResponse });
   } catch (error) {
-    console.error('Error calling Google Gemini API:', error);
+    console.error('Error calling Groq API:', error);
 
     // Fallback response if API fails
     const fallbackResponse = generateFallbackResponse(userMessage);
 
     return NextResponse.json({ response: fallbackResponse });
   }
+}
+
+function generateFallbackResponse(userMessage: string): string {
+  // Simple fallback using the databases
+  const randomPhilosopher = philosopherQuotes[Math.floor(Math.random() * philosopherQuotes.length)];
+  const randomPunk = punkRockWisdom[Math.floor(Math.random() * punkRockWisdom.length)];
+
+  return `Well, you see, as ${randomPhilosopher.philosopher} said in ${randomPhilosopher.year} "${randomPhilosopher.quote}", or even more wisely from the song ${randomPunk.song} from the infinitely wise ${randomPunk.band}: "${randomPunk.theme}".`;
 }
 
 function generateFallbackResponse(userMessage: string): string {
