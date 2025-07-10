@@ -120,7 +120,7 @@ function ChatInterface() {
                 <div
                   className={`max-w-[80%] rounded-2xl px-4 py-3 ${
                     message.role === 'user'
-                      ? 'bg-blue-500 text-white'
+                      ? 'bg-green-500 text-white'
                       : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700'
                   }`}
                 >
@@ -128,7 +128,7 @@ function ChatInterface() {
                     {message.content}
                   </p>
                   <p className={`text-xs mt-2 ${
-                    message.role === 'user' ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'
+                    message.role === 'user' ? 'text-green-100' : 'text-gray-500 dark:text-gray-400'
                   }`}>
                     {message.timestamp.toLocaleTimeString()}
                   </p>
@@ -150,20 +150,20 @@ function ChatInterface() {
           </div>
 
           {/* Input Area */}
-          <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-800">
+          <div className="border-t border-green-200 dark:border-green-700 p-4 bg-green-50 dark:bg-green-900">
             <form onSubmit={handleSubmit} className="flex space-x-4">
               <input
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Ask me anything..."
-                className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                className="flex-1 px-4 py-3 border border-green-300 dark:border-green-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-green-800 dark:text-white bg-white"
                 disabled={isLoading}
               />
               <button
                 type="submit"
                 disabled={isLoading || !inputValue.trim()}
-                className="px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-6 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {isLoading ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
