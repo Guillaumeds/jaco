@@ -1,8 +1,31 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Jaco 3.0 - It Only Takes Wine Guy
+
+A philosophical punk rock wisdom AI that provides philosophical quotes paired with punk/rock insights for any life situation.
+
+## Setup
+
+1. **Install dependencies:**
+```bash
+npm install
+```
+
+2. **Configure API Key:**
+Copy `.env.local.example` to `.env.local` and add your Groq API key:
+```bash
+cp .env.local.example .env.local
+```
+
+Edit `.env.local`:
+```
+GROQ_API_KEY=your_actual_groq_api_key_here
+USER_NAME=your_username_here
+```
+
+Get your Groq API key from [console.groq.com](https://console.groq.com)
 
 ## Getting Started
 
-First, run the development server:
+Run the development server:
 
 ```bash
 npm run dev
