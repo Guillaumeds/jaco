@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Jaco 2.0 - Legal Counsel",
-  description: "Ask Jaco anything (especially legal advice) and be enlightened!",
+  title: "Jaco 3.0 - It Only Takes Wine Guy",
+  description: "Ask Jaco anything and be enlightened with philosophical punk rock wisdom!",
 };
 
 export default function RootLayout({

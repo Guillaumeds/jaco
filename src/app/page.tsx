@@ -94,7 +94,7 @@ function ChatInterface() {
           </div>
 
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            Jaco 2.0 - Legal Counsel
+            Jaco 3.0 - It Only Takes Wine Guy
           </h1>
         </div>
       </div>

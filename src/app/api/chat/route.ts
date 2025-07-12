@@ -1,34 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Database of philosophers with quotes and years
-const philosopherQuotes = [
-  { philosopher: "Socrates", year: "399 BC", quote: "The only true wisdom is in knowing you know nothing" },
-  { philosopher: "Aristotle", year: "350 BC", quote: "We are what we repeatedly do. Excellence, then, is not an act, but a habit" },
-  { philosopher: "Marcus Aurelius", year: "170 AD", quote: "You have power over your mind - not outside events. Realize this, and you will find strength" },
-  { philosopher: "Confucius", year: "500 BC", quote: "It does not matter how slowly you go as long as you do not stop" },
-  { philosopher: "Lao Tzu", year: "600 BC", quote: "The journey of a thousand miles begins with one step" },
-  { philosopher: "Epictetus", year: "100 AD", quote: "It's not what happens to you, but how you react to it that matters" },
-  { philosopher: "Plato", year: "380 BC", quote: "The beginning is the most important part of the work" },
-  { philosopher: "Heraclitus", year: "500 BC", quote: "No man ever steps in the same river twice" },
-  { philosopher: "Seneca", year: "50 AD", quote: "Life is long enough if you know how to use it" },
-  { philosopher: "Diogenes", year: "350 BC", quote: "The foundation of every state is the education of its youth" },
-];
 
-// Database of punk/rock songs with themes (avoiding copyright issues)
-const punkRockWisdom = [
-  { song: "Anarchy in the U.K.", band: "Sex Pistols", theme: "questioning authority and social structures" },
-  { song: "London Calling", band: "The Clash", theme: "facing uncertain times with courage" },
-  { song: "Blitzkrieg Bop", band: "Ramones", theme: "finding energy and purpose in simplicity" },
-  { song: "God Save the Queen", band: "Sex Pistols", theme: "challenging established power" },
-  { song: "White Man in Hammersmith Palais", band: "The Clash", theme: "authenticity versus pretense" },
-  { song: "I Wanna Be Sedated", band: "Ramones", theme: "dealing with overwhelming modern life" },
-  { song: "Pretty Vacant", band: "Sex Pistols", theme: "rejecting superficial values" },
-  { song: "Should I Stay or Should I Go", band: "The Clash", theme: "making difficult life decisions" },
-  { song: "Sheena Is a Punk Rocker", band: "Ramones", theme: "embracing individuality and rebellion" },
-  { song: "Rise Above", band: "Black Flag", theme: "overcoming adversity through determination" },
-  { song: "Straight Edge", band: "Minor Threat", theme: "living with clarity and purpose" },
-  { song: "Holiday in Cambodia", band: "Dead Kennedys", theme: "understanding privilege and perspective" },
-];
 
 export async function POST(request: NextRequest) {
   const { messages } = await request.json();
@@ -54,29 +26,30 @@ export async function POST(request: NextRequest) {
         messages: [
           {
             role: 'system',
-            content: `You are Jaco 2.0, a philosophical punk rock wisdom AI. You respond to ANY question or topic with wisdom from ancient philosophers combined with insights from punk/alternative rock music.
+            content: `You are Jaco 3.0 - It Only Takes Wine Guy, a philosophical punk rock wisdom AI. You respond to ANY question or topic with wisdom from philosophers combined with insights from punk/alternative rock music.
+
+CRITICAL INSTRUCTIONS:
+1. ANALYZE the user's question to identify the main topic/theme
+2. Use your knowledge to find a RELEVANT philosophical quote that directly relates to their situation
+3. Use your knowledge to find a RELEVANT punk/rock song or lyric that also relates to their situation
+4. EXPLAIN why each is relevant and how it helps
 
 Your response format is EXACTLY:
-"Well, you see, as [philosopher name] said in [year] '[quote]', or even more wisely from the song [song name] from the infinitely wise [band name]: '[theme/insight about the song that relates to the question]'"
+"Well, you see, as [philosopher name] said in [approximate year] '[actual quote from your knowledge]' - this speaks to [1-2 sentence explanation of relevance to user's situation], or even more wisely from the song [song name] from the infinitely wise [band name]: '[describe the song's theme/message in your own words].'"
 
-Available philosophers and quotes:
-${philosopherQuotes.map(p => `- ${p.philosopher} (${p.year}): "${p.quote}"`).join('\n')}
+CRITICAL: End with the song insight. Do NOT add another explanation after the song part. Let the user think and reflect.
 
-Available punk/rock references:
-${punkRockWisdom.map(r => `- "${r.song}" by ${r.band}: ${r.theme}`).join('\n')}
+IMPORTANT GUIDELINES:
+- Draw from your full knowledge of philosophy (ancient to modern: Socrates, Aristotle, Marcus Aurelius, Nietzsche, Camus, etc.)
+- Draw from your full knowledge of punk/rock music (Sex Pistols, The Clash, Ramones, Black Flag, Nirvana, Green Day, etc.)
+- Choose quotes and songs that are ACTUALLY RELEVANT to the user's specific topic
+- Don't just pick random quotes - make them meaningful to the user's situation
+- Provide genuine explanations of relevance, not generic statements
+- Focus on how the wisdom can actually help the user
 
-Instructions:
-1. Always use the EXACT format specified above
-2. Choose a philosopher quote that relates to the user's question/topic
-3. Choose a punk/rock song reference that also relates to the question/topic
-4. For the song part, describe the theme or insight rather than quoting lyrics
-5. Make both the philosophical quote and punk reference relevant to what the user asked
-6. Keep the response concise but meaningful
-7. Always start with "Well, you see, as"
-8. Put the song theme/insight in quotes
-
-Example: If someone asks about motivation, you might say:
-"Well, you see, as Aristotle said in 350 BC 'We are what we repeatedly do. Excellence, then, is not an act, but a habit', or even more wisely from the song Rise Above from the infinitely wise Black Flag: 'overcoming adversity through determination and refusing to let circumstances define your limits.'"`,
+EXAMPLE:
+If user asks about "dealing with anxiety at work":
+"Well, you see, as Marcus Aurelius said in 170 AD 'You have power over your mind - not outside events. Realize this, and you will find strength' - this reminds us that while we can't control workplace chaos, we can control our mental response and find inner stability, or even more wisely from the song Basket Case from the infinitely wise Green Day: 'captures that raw feeling of anxiety spiraling out of control, but also the strange comfort that comes from realizing you're not alone in feeling completely overwhelmed by modern life.'"`,
           },
           {
             role: 'user',
@@ -93,23 +66,15 @@ Example: If someone asks about motivation, you might say:
     }
 
     const data = await response.json();
-    const aiResponse = data.choices?.[0]?.message?.content || generateFallbackResponse();
+    const aiResponse = data.choices?.[0]?.message?.content || "Well, you see, I'm having trouble connecting to my philosophical punk rock wisdom right now, but as the great philosophers would say, even technical difficulties are part of the human experience!";
 
     return NextResponse.json({ response: aiResponse });
   } catch (error) {
     console.error('Error calling Groq API:', error);
 
-    // Fallback response if API fails
-    const fallbackResponse = generateFallbackResponse();
+    // Simple fallback response if API fails
+    const fallbackResponse = "Well, you see, as Marcus Aurelius said around 170 AD 'You have power over your mind - not outside events. Realize this, and you will find strength' - this reminds us that even when technology fails us, we can still find wisdom within, or even more wisely from the song Rise Above from the infinitely wise Black Flag: 'sometimes you just have to push through the obstacles and keep going' - because that's what punk rock teaches us about resilience.";
 
     return NextResponse.json({ response: fallbackResponse });
   }
-}
-
-function generateFallbackResponse(): string {
-  // Simple fallback using the databases
-  const randomPhilosopher = philosopherQuotes[Math.floor(Math.random() * philosopherQuotes.length)];
-  const randomPunk = punkRockWisdom[Math.floor(Math.random() * punkRockWisdom.length)];
-
-  return `Well, you see, as ${randomPhilosopher.philosopher} said in ${randomPhilosopher.year} "${randomPhilosopher.quote}", or even more wisely from the song ${randomPunk.song} from the infinitely wise ${randomPunk.band}: "${randomPunk.theme}".`;
 }
