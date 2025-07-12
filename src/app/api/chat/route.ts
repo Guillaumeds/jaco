@@ -1,32 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
+import Groq from 'groq-sdk';
 
-
+// Initialize Groq client with proper configuration
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY,
+  maxRetries: 3,
+  timeout: 30 * 1000, // 30 seconds
+});
 
 export async function POST(request: NextRequest) {
-  const { messages } = await request.json();
-
-  // Get the last user message
-  const lastMessage = messages[messages.length - 1];
-  const userMessage = lastMessage?.content || '';
-
-  if (!userMessage) {
-    return NextResponse.json({ error: 'Message is required' }, { status: 400 });
-  }
-
   try {
-    // Use Groq API for Jaco's responses
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [
-          {
-            role: 'system',
-            content: `You are Jaco 3.0 - It Only Takes Wine Guy. You are a philosophical punk rock wisdom AI with access to vast knowledge of philosophy and music.
+    const { messages } = await request.json();
+    const userMessage = messages[messages.length - 1]?.content || '';
+
+    // Validate API key
+    if (!process.env.GROQ_API_KEY) {
+      console.error('GROQ_API_KEY is not configured');
+      return NextResponse.json({
+        response: "Service temporarily unavailable - API key not configured. Please try again later."
+      });
+    }
+
+    // Handle empty message
+    if (!userMessage.trim()) {
+      return NextResponse.json({
+        response: "Well, you see, as Socrates said around 399 BC 'The only true wisdom is in knowing you know nothing' - this applies when you ask me nothing, or even more wisely from the song The Sound of Silence from the infinitely wise Simon & Garfunkel: 'sometimes the most profound conversations begin with simply saying hello.'"
+      });
+    }
+
+    console.log('Making Groq API call for message:', userMessage.substring(0, 100) + '...');
+
+    // Make API call using official Groq SDK
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: 'system',
+          content: `You are Jaco 3.0 - It Only Takes Wine Guy. You are a philosophical punk rock wisdom AI with access to vast knowledge of philosophy and music.
 
 CORE MISSION: For ANY user question, provide ONE philosophical quote + ONE punk/rock insight that directly relate to their specific situation.
 
@@ -46,30 +55,54 @@ VARIETY REQUIREMENTS:
 
 KNOWLEDGE DEPTH INSTRUCTION:
 Access your full philosophical training data spanning 2500+ years of human wisdom and your complete knowledge of punk/alternative music from 1970s-2020s. Don't default to the most quoted sources - find relevant but less common wisdom that specifically addresses the user's situation.`,
-          },
-          {
-            role: 'user',
-            content: userMessage,
-          },
-        ],
-        temperature: 0.8,
-        max_completion_tokens: 300,
-      }),
+        },
+        {
+          role: 'user',
+          content: userMessage,
+        },
+      ],
+      model: 'llama-3.3-70b-versatile',
+      temperature: 0.8,
+      max_completion_tokens: 300,
     });
 
-    if (!response.ok) {
-      throw new Error(`Groq API error: ${response.status}`);
+    const aiResponse = chatCompletion.choices?.[0]?.message?.content;
+
+    if (!aiResponse) {
+      throw new Error('No response content from Groq API');
     }
 
-    const data = await response.json();
-    const aiResponse = data.choices?.[0]?.message?.content || "Well, you see, I'm having trouble connecting to my philosophical punk rock wisdom right now, but as the great philosophers would say, even technical difficulties are part of the human experience!";
-
+    console.log('Groq API call successful');
     return NextResponse.json({ response: aiResponse });
-  } catch (error) {
-    console.error('Error calling Groq API:', error);
 
-    // Simple fallback response if API fails
-    const fallbackResponse = "Well, you see, as Marcus Aurelius said around 170 AD 'You have power over your mind - not outside events. Realize this, and you will find strength' - this reminds us that even when technology fails us, we can still find wisdom within, or even more wisely from the song Rise Above from the infinitely wise Black Flag: 'sometimes you just have to push through the obstacles and keep going' - because that's what punk rock teaches us about resilience.";
+  } catch (error) {
+    console.error('Groq API Error:', error);
+
+    // Handle specific Groq API errors
+    if (error instanceof Groq.APIError) {
+      console.error('Groq API Error Details:', {
+        status: error.status,
+        name: error.name,
+        message: error.message,
+      });
+
+      // Handle rate limiting
+      if (error.status === 429) {
+        return NextResponse.json({
+          response: "Service temporarily unavailable - rate limit exceeded. Please try again in a moment."
+        });
+      }
+
+      // Handle authentication errors
+      if (error.status === 401) {
+        return NextResponse.json({
+          response: "Service temporarily unavailable - authentication issue. Please try again later."
+        });
+      }
+    }
+
+    // Fallback response for any error
+    const fallbackResponse = "Well, you see, as Marcus Aurelius said around 170 AD 'You have power over your mind - not outside events. Realize this, and you will find strength' - this reminds us that even when technology fails us, we can still find wisdom within, or even more wisely from the song Rise Above from the infinitely wise Black Flag: 'sometimes you just have to push through the obstacles and keep going.'";
 
     return NextResponse.json({ response: fallbackResponse });
   }
