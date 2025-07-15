@@ -1,13 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Groq from 'groq-sdk';
 
-// Initialize Groq client with proper configuration
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-  maxRetries: 3,
-  timeout: 30 * 1000, // 30 seconds
-});
-
 export async function POST(request: NextRequest) {
   try {
     const { messages } = await request.json();
@@ -29,6 +22,13 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Making Groq API call for message:', userMessage.substring(0, 100) + '...');
+
+    // Initialize Groq client inside the function (not at module level)
+    const groq = new Groq({
+      apiKey: process.env.GROQ_API_KEY,
+      maxRetries: 3,
+      timeout: 30 * 1000, // 30 seconds
+    });
 
     // Make API call using official Groq SDK
     const chatCompletion = await groq.chat.completions.create({
